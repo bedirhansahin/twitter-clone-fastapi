@@ -8,5 +8,5 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
-app.include_router(r_users.router)
+app.include_router(r_users.router, prefix="/users", tags=["users"])
 app.include_router(r_auth.router)

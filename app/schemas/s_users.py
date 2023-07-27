@@ -30,3 +30,37 @@ class UserResponse(BaseModel):
     username: str
     bio: Optional[str]
     birthdate: Optional[date]
+
+
+class UserUpdateBody(BaseModel):
+    id: int
+    email: EmailStr
+    username: str
+    bio: Optional[str]
+    birthdate: Optional[date]
+
+    class Config:
+        from_attributes = True
+
+
+class UserUpdateRequest(BaseModel):
+    password: str
+    newUsername: Optional[str] = None
+    newBio: Optional[str] = None
+
+
+class UserChangePasswordRequest(BaseModel):
+    password: str
+    newPassword: str
+    newPassword2: str
+
+
+class UserPasswordBody(User):
+    hashed_password: str
+
+    class Config:
+        from_attributes = True
+
+
+class UserDeleteRequest(BaseModel):
+    password: str

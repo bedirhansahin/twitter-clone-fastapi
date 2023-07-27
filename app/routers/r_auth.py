@@ -47,6 +47,6 @@ async def logout_and_expire_cookie(
         domain="localhost",
         httponly=True,
         max_age=1,
-        expires=1,
+        expires=-1,
     )
     return {}
