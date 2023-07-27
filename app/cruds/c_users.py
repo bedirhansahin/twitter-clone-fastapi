@@ -22,6 +22,11 @@ def get_user_by_username(db: Session, username: str):
     return query
 
 
+def get_user_by_id(db: Session, user_id: str):
+    query = db.query(models.User).filter(models.User.id == user_id).one_or_none()
+    return query
+
+
 def search_user_by_username_letters(
     db: Session, username: str, skip: int = 0, limit: int = 10
 ):

@@ -10,7 +10,7 @@ from security import authenticate_user, create_access_token
 from schemas import s_users
 
 
-router = APIRouter(tags=["Auth"])
+router = APIRouter()
 
 
 @router.post("/token")

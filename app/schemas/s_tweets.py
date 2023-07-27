@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-
-from datetime import datetime, date
+from pydantic import BaseModel
 
 
-class TweetBase(str):
+from datetime import datetime
+
+
+class TweetBase(BaseModel):
     content: str
 
 
@@ -12,11 +12,23 @@ class TweetCreate(TweetBase):
     pass
 
 
+class TweetUpdate(BaseModel):
+    content: str
+
+
 class Tweet(TweetBase):
     id: int
-    userId: int
+    user_id: int
     username: str
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class TweetResponse(BaseModel):
+    tweetId: int
+    userId: int
+    username: str
+    content: str
+    created_at: datetime
