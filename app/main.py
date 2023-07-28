@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 
-from starlette.middleware import Middleware
-from starlette.middleware.sessions import SessionMiddleware
-
-from routers import r_users, r_auth, r_tweets
+from routers import r_users, r_auth, r_tweets, r_comments
 from database import engine, Base
 
 from dotenv import load_dotenv
@@ -47,6 +44,7 @@ def version_0_1_0():
     endpoints = [
         (r_users.router, "/users", ["users"]),
         (r_tweets.router, "/tweets", ["tweets"]),
+        (r_comments.router, "/comments", ["comments"]),
     ]
     v_0_1_0.include_router(r_auth.router, tags=["Auth"])
 

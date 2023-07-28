@@ -1,9 +1,6 @@
 from fastapi import HTTPException
 
-from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
-
-from typing import List, Union, Optional
 
 import models
 from schemas import s_tweets

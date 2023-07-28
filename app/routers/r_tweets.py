@@ -9,7 +9,6 @@ from schemas import s_tweets, s_users
 from dependencies import get_db, get_current_user
 from cruds import c_tweets, c_users
 
-import datetime
 
 router = APIRouter()
 
