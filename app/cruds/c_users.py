@@ -8,7 +8,13 @@ import models
 
 
 def get_all_users(db: Session, skip: int = 0, limit: int = 10):
-    query = db.query(models.User).offset(skip).limit(limit).all()
+    query = (
+        db.query(models.User)
+        .filter(models.User.is_active == True)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     return query
 
 
@@ -18,7 +24,16 @@ def get_user_by_email(db: Session, email: str):
 
 
 def get_user_by_username(db: Session, username: str):
-    query = db.query(models.User).filter(models.User.username == username).one_or_none()
+    query = (
+        db.query(models.User)
+        .filter(
+            models.User.username == username,
+        )
+        .filter(
+            models.User.is_active == True,
+        )
+        .one_or_none()
+    )
     return query
 
 
@@ -32,7 +47,14 @@ def search_user_by_username_letters(
 ):
     query = (
         db.query(models.User)
-        .filter(models.User.username.ilike(f"%{username}%"))
+        .filter(
+            or_(
+                models.User.username.ilike(f"%{username}%"),
+            )
+        )
+        .filter(
+            models.User.is_active == True,
+        )
         .limit(limit)
         .offset(skip)
         .all()
@@ -99,4 +121,26 @@ def delete_user(db: Session, user_id: int):
         db.query(models.User).filter(models.User.id == user_id).delete()
         db.commit()
     except Exception:
+        raise HTTPException(status_code=400, detail="Something went wrong")
+
+
+def change_user_private_status(db: Session, user_id: int):
+    user = db.query(models.User).filter(models.User.id == user_id).one_or_none()
+    if user:
+        user.is_private = not user.is_private
+        db.commit()
+        db.refresh(user)
+        return user
+    else:
+        raise HTTPException(status_code=400, detail="Something went wrong")
+
+
+def change_user_active_status(db: Session, user_id: int):
+    user = db.query(models.User).filter(models.User.id == user_id).one_or_none()
+    if user:
+        user.is_active = not user.is_active
+        db.commit()
+        db.refresh(user)
+        return user
+    else:
         raise HTTPException(status_code=400, detail="Something went wrong")

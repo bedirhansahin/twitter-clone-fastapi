@@ -49,3 +49,38 @@ def create_tweet(db: Session, tweet: s_tweets.TweetCreate, user_id: int):
     db.commit()
     db.refresh(db_tweet)
     return db_tweet
+
+
+def update_tweet(db: Session, tweet_id: int, user_id: int, new_content: str):
+    db_tweet: s_tweets.Tweet = (
+        db.query(models.Tweet).filter(models.Tweet.id == tweet_id).one_or_none()
+    )
+
+    if not db_tweet:
+        raise HTTPException(status_code=404, detail="Tweet not found")
+
+    if db_tweet.user_id != user_id:
+        raise HTTPException(status_code=401, detail="User does not own this tweet")
+
+    db_tweet.content = new_content
+    db.commit()
+    db.refresh(db_tweet)
+    return db_tweet
+
+
+def delete_tweet(db: Session, tweet_id: int, user_id: int):
+    db_tweet: s_tweets.Tweet = (
+        db.query(models.Tweet).filter(models.Tweet.id == tweet_id).one_or_none()
+    )
+
+    if not db_tweet:
+        raise HTTPException(status_code=404, detail="Tweet not found")
+
+    if db_tweet.user_id != user_id:
+        raise HTTPException(status_code=401, detail="User does not own this tweet")
+
+    try:
+        db.delete(db_tweet)
+        db.commit()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Something went wrong")

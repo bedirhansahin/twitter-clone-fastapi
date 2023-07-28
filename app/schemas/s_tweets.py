@@ -13,7 +13,7 @@ class TweetCreate(TweetBase):
 
 
 class TweetUpdate(BaseModel):
-    content: str
+    new_content: str
 
 
 class Tweet(TweetBase):

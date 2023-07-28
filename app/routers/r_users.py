@@ -54,6 +54,15 @@ def get_one_or_all_users(
     return users
 
 
+@router.get("/{username}", response_model=s_users.UserResponse)
+def get_user_by_username(username: str, db: Session = Depends(get_db)):
+    user = c_users.get_user_by_username(db, username)
+    if user:
+        return user
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
+
+
 @router.put("/me", response_model=s_users.UserUpdateBody)
 async def update_user(
     request_body: s_users.UserUpdateRequest,
@@ -106,4 +115,30 @@ async def delete_user(
     ):
         raise HTTPException(status_code=401, detail="Wrong password")
     c_users.delete_user(db, current_user.id)
-    return {"message": "User deleted    successfuly"}
+    return {"message": "User deleted successfuly"}
+
+
+@router.put("/settings/safety")
+def change_private_or_public(
+    db: Session = Depends(get_db),
+    current_user: s_users.UserPasswordBody = Depends(get_current_user),
+):
+    updated_user = c_users.change_user_private_status(db, current_user.id)
+
+    if updated_user:
+        return {"message": "User status is changed"}
+    else:
+        return {"error": "User not found"}
+
+
+@router.put("/settings/status")
+def change_active_status(
+    db: Session = Depends(get_db),
+    current_user: s_users.UserPasswordBody = Depends(get_current_user),
+):
+    updated_user = c_users.change_user_active_status(db, current_user.id)
+
+    if updated_user:
+        return {"message": "User status is changed"}
+    else:
+        return {"error": "User not found"}

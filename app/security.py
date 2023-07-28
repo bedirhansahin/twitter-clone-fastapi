@@ -9,6 +9,16 @@ from jose import jwt
 from schemas import s_users
 from cruds import c_users
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
+SECRET_KEY = str(os.environ.get("SECRET_KEY"))
+ALGORITHM = str(os.environ.get("SECRET_KEY"))
+EXPIRE_TIME = os.environ.get("SECRET_KEY")
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
