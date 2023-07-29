@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 from datetime import datetime
 
+from uuid import UUID
+
 
 class TweetBase(BaseModel):
     content: str
@@ -17,8 +19,8 @@ class TweetUpdate(BaseModel):
 
 
 class Tweet(TweetBase):
-    id: int
-    user_id: int
+    id: UUID
+    user_id: UUID
     username: str
     created_at: datetime
 
@@ -27,8 +29,8 @@ class Tweet(TweetBase):
 
 
 class TweetResponse(BaseModel):
-    tweetId: int
-    userId: int
+    tweetId: UUID
+    userId: UUID
     username: str
     content: str
     created_at: datetime

@@ -6,14 +6,12 @@ from schemas import s_users
 import security
 import models
 
+from uuid import UUID
+
 
 def get_all_users(db: Session, skip: int = 0, limit: int = 10):
     query = (
-        db.query(models.User)
-        .filter(models.User.is_active == True)
-        .offset(skip)
-        .limit(limit)
-        .all()
+        db.query(models.User).filter(models.User.is_active == True).offset(skip).limit(limit).all()
     )
     return query
 
@@ -37,14 +35,12 @@ def get_user_by_username(db: Session, username: str):
     return query
 
 
-def get_user_by_id(db: Session, user_id: str):
+def get_user_by_id(db: Session, user_id: UUID):
     query = db.query(models.User).filter(models.User.id == user_id).one_or_none()
     return query
 
 
-def search_user_by_username_letters(
-    db: Session, username: str, skip: int = 0, limit: int = 10
-):
+def search_user_by_username_letters(db: Session, username: str, skip: int = 0, limit: int = 10):
     query = (
         db.query(models.User)
         .filter(
@@ -78,16 +74,14 @@ def get_user_by_email_or_username(db: Session, username: str):
 
 def create_user(db: Session, user: s_users.UserCreate):
     hashed_password = security.get_password_hash(user.password)
-    db_user = models.User(
-        email=user.email, username=user.username, hashed_password=hashed_password
-    )
+    db_user = models.User(email=user.email, username=user.username, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
 
-def update_user(db: Session, user_id: int, user_update: s_users.UserUpdateRequest):
+def update_user(db: Session, user_id: UUID, user_update: s_users.UserUpdateRequest):
     user_db = db.query(models.User).filter(models.User.id == user_id).one_or_none()
     if user_update.newBio:
         user_db.bio = user_update.newBio
@@ -95,19 +89,18 @@ def update_user(db: Session, user_id: int, user_update: s_users.UserUpdateReques
     if user_update.newUsername:
         user_db.username = user_update.newUsername
 
+    if user_update.newBirthdate:
+        user_db.birthdate = user_update.newBirthdate
+
     db.commit()
     db.refresh(user_db)
     return user_db
 
 
-def change_password(
-    db: Session, user_id: int, password_update: s_users.UserChangePasswordRequest
-):
+def change_password(db: Session, user_id: UUID, password_update: s_users.UserChangePasswordRequest):
     user_db = db.query(models.User).filter(models.User.id == user_id).one_or_none()
     if password_update.newPassword == password_update.newPassword2:
-        user_db.hashed_password = security.get_password_hash(
-            password_update.newPassword
-        )
+        user_db.hashed_password = security.get_password_hash(password_update.newPassword)
     else:
         raise HTTPException(status_code=400, detail="Passwords do not match!")
 
@@ -116,7 +109,7 @@ def change_password(
     return user_db
 
 
-def delete_user(db: Session, user_id: int):
+def delete_user(db: Session, user_id: UUID):
     try:
         db.query(models.User).filter(models.User.id == user_id).delete()
         db.commit()
@@ -124,7 +117,7 @@ def delete_user(db: Session, user_id: int):
         raise HTTPException(status_code=400, detail="Something went wrong")
 
 
-def change_user_private_status(db: Session, user_id: int):
+def change_user_private_status(db: Session, user_id: UUID):
     user = db.query(models.User).filter(models.User.id == user_id).one_or_none()
     if user:
         user.is_private = not user.is_private
@@ -135,7 +128,7 @@ def change_user_private_status(db: Session, user_id: int):
         raise HTTPException(status_code=400, detail="Something went wrong")
 
 
-def change_user_active_status(db: Session, user_id: int):
+def change_user_active_status(db: Session, user_id: UUID):
     user = db.query(models.User).filter(models.User.id == user_id).one_or_none()
     if user:
         user.is_active = not user.is_active

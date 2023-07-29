@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 import models
 from schemas import s_tweets
 
+from uuid import UUID
+
 
 def get_all_tweets(db: Session, skip: int = 0, limit: int = 10):
     query = (
@@ -17,12 +19,12 @@ def get_all_tweets(db: Session, skip: int = 0, limit: int = 10):
     return query
 
 
-def get_tweet_by_id(db: Session, tweet_id: int):
+def get_tweet_by_id(db: Session, tweet_id: UUID):
     query = db.query(models.Tweet).filter(models.Tweet.id == tweet_id).one_or_none()
     return query
 
 
-def get_users_tweets(db: Session, user_id: int, skip: int = 0, limit: int = 10):
+def get_users_tweets(db: Session, user_id: UUID, skip: int = 0, limit: int = 10):
     db_user = db.query(models.User).filter(models.User.id == user_id).one_or_none()
     if not db_user:
         raise HTTPException(status_code=400, detail="User does not exist")
@@ -38,7 +40,7 @@ def get_users_tweets(db: Session, user_id: int, skip: int = 0, limit: int = 10):
     return query
 
 
-def create_tweet(db: Session, tweet: s_tweets.TweetCreate, user_id: int):
+def create_tweet(db: Session, tweet: s_tweets.TweetCreate, user_id: UUID):
     db_tweet = models.Tweet(**tweet.dict())
     db_tweet.user_id = user_id
 
@@ -48,7 +50,7 @@ def create_tweet(db: Session, tweet: s_tweets.TweetCreate, user_id: int):
     return db_tweet
 
 
-def update_tweet(db: Session, tweet_id: int, user_id: int, new_content: str):
+def update_tweet(db: Session, tweet_id: UUID, user_id: UUID, new_content: str):
     db_tweet: s_tweets.Tweet = (
         db.query(models.Tweet).filter(models.Tweet.id == tweet_id).one_or_none()
     )
@@ -65,7 +67,7 @@ def update_tweet(db: Session, tweet_id: int, user_id: int, new_content: str):
     return db_tweet
 
 
-def delete_tweet(db: Session, tweet_id: int, user_id: int):
+def delete_tweet(db: Session, tweet_id: UUID, user_id: UUID):
     db_tweet: s_tweets.Tweet = (
         db.query(models.Tweet).filter(models.Tweet.id == tweet_id).one_or_none()
     )

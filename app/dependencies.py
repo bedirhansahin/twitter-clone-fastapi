@@ -21,6 +21,8 @@ from security import decode_token
 from cruds import c_users
 from schemas import s_tokens
 
+from uuid import UUID
+
 
 def get_db():
     db = SessionLocal()
@@ -47,9 +49,7 @@ class OAuth2PasswordBearerCookie(OAuth2):
         flows = OAuthFlowsModel(password={"tokenUrl": tokenUrl, "scopes": {}})
         super().__init__(flows=flows, scheme_name=scheme_name, auto_error=auto_error)
 
-    async def __call__(
-        self, request: Request = None, websocket: WebSocket = None
-    ) -> Optional[str]:
+    async def __call__(self, request: Request = None, websocket: WebSocket = None) -> Optional[str]:
         header_authorization: str = None
         cookie_authorization: str = None
 
@@ -60,12 +60,8 @@ class OAuth2PasswordBearerCookie(OAuth2):
             cookie_authorization = websocket.cookies.get("Authorization")
             header_authorization = websocket.headers.get("Authorization")
 
-        header_scheme, header_param = get_authorization_scheme_param(
-            header_authorization
-        )
-        cookie_scheme, cookie_param = get_authorization_scheme_param(
-            cookie_authorization
-        )
+        header_scheme, header_param = get_authorization_scheme_param(header_authorization)
+        cookie_scheme, cookie_param = get_authorization_scheme_param(cookie_authorization)
 
         if header_scheme.lower() == "bearer":
             authorization = True
@@ -93,9 +89,7 @@ class OAuth2PasswordBearerCookie(OAuth2):
 oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="/v1/token")
 
 
-def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     token_data: s_tokens.TokenData = None
 
     credentials_exception = HTTPException(
@@ -118,3 +112,11 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+def is_valid_uuid(id_str):
+    try:
+        uuid_obj = UUID(id_str, version=4)
+        return str(uuid_obj) == id_str
+    except ValueError:
+        return False

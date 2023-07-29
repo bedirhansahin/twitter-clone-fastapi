@@ -3,6 +3,8 @@ from typing import Optional
 
 from datetime import datetime, date
 
+from uuid import UUID
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -16,7 +18,7 @@ class UserCreate(UserBase):
 
 
 class User(UserBase):
-    id: int
+    id: UUID
     is_private: bool
     created_at: datetime
 
@@ -25,7 +27,7 @@ class User(UserBase):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: UUID
     email: EmailStr
     username: str
     bio: Optional[str]
@@ -33,7 +35,7 @@ class UserResponse(BaseModel):
 
 
 class UserUpdateBody(BaseModel):
-    id: int
+    id: UUID
     email: EmailStr
     username: str
     bio: Optional[str]
@@ -47,6 +49,7 @@ class UserUpdateRequest(BaseModel):
     password: str
     newUsername: Optional[str] = None
     newBio: Optional[str] = None
+    newBirthdate: Optional[date] = None
 
 
 class UserChangePasswordRequest(BaseModel):

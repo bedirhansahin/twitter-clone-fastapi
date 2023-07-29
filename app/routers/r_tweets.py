@@ -6,8 +6,10 @@ from typing import List, Optional
 
 from schemas import s_tweets, s_users
 
-from dependencies import get_db, get_current_user
+from dependencies import get_db, get_current_user, is_valid_uuid
 from cruds import c_tweets, c_users
+
+from uuid import UUID
 
 
 router = APIRouter()
@@ -58,7 +60,7 @@ def get_all_tweets(
 
 @router.get("/tweet/{tweet_id}", response_model=s_tweets.TweetResponse)
 def get_tweet_by_tweet_id(
-    tweet_id: int,
+    tweet_id: UUID,
     db: Session = Depends(get_db),
 ):
     tweet = c_tweets.get_tweet_by_id(db, tweet_id)
@@ -74,20 +76,18 @@ def get_tweet_by_tweet_id(
 
 @router.put("/{tweet_id}")
 async def update_tweet(
-    tweet_id: int,
+    tweet_id: UUID,
     request_body: s_tweets.TweetUpdate,
     db: Session = Depends(get_db),
     current_user: s_users.User = Depends(get_current_user),
 ):
-    update_tweet = c_tweets.update_tweet(
-        db, tweet_id, current_user.id, request_body.new_content
-    )
+    update_tweet = c_tweets.update_tweet(db, tweet_id, current_user.id, request_body.new_content)
     return s_tweets.TweetUpdate(new_content=update_tweet.content)
 
 
 @router.delete("/{tweet_id}")
 async def delete_tweet(
-    tweet_id: int,
+    tweet_id: UUID,
     db: Session = Depends(get_db),
     current_user: s_users.User = Depends(get_current_user),
 ):

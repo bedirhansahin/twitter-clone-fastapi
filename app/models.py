@@ -8,16 +8,18 @@ from sqlalchemy import (
     ForeignKey,
     func,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.dialects.postgresql import UUID
 
 from database import Base
+import uuid
 
 
 class User(Base):
     __table_args__ = {"schema": "twitter_clone"}
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4(), unique=True)
     username = Column(String, index=True, nullable=False)
     email = Column(String, index=True, nullable=False)
     bio = Column(String)
@@ -36,9 +38,7 @@ class User(Base):
         back_populates="follows_user",
         foreign_keys="Follows.following_user_id",
     )
-    followers = relationship(
-        "Follows", back_populates="user", foreign_keys="Follows.user_id"
-    )
+    followers = relationship("Follows", back_populates="user", foreign_keys="Follows.user_id")
 
     def __repr__(self):
         return f"{self.id} | {self.username}"
@@ -48,24 +48,22 @@ class Tweet(Base):
     __table_args__ = {"schema": "twitter_clone"}
     __tablename__ = "tweets"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4(), unique=True)
     content = Column(String(255), index=True)
     created_at = Column(DateTime, default=func.now())
-    user_id = Column(Integer, ForeignKey("twitter_clone.users.id"))
+    user_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.users.id"))
 
     user = relationship("User", back_populates="tweets", foreign_keys=[user_id])
-    comments = relationship(
-        "Comments", back_populates="tweet", cascade="all, delete-orphan"
-    )
+    comments = relationship("Comments", back_populates="tweet", cascade="all, delete-orphan")
 
 
 class Comments(Base):
     __table_args__ = {"schema": "twitter_clone"}
     __tablename__ = "comments"
 
-    id = Column(Integer, primary_key=True, index=True)
-    tweet_id = Column(Integer, ForeignKey("twitter_clone.tweets.id"))
-    user_id = Column(Integer, ForeignKey("twitter_clone.users.id"))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4(), unique=True)
+    tweet_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.tweets.id"))
+    user_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.users.id"))
     content = Column(String, index=True)
     created_at = Column(DateTime, default=func.now())
 
@@ -77,9 +75,9 @@ class Follows(Base):
     __table_args__ = {"schema": "twitter_clone"}
     __tablename__ = "follows"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("twitter_clone.users.id"))
-    following_user_id = Column(Integer, ForeignKey("twitter_clone.users.id"))
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4(), unique=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.users.id"))
+    following_user_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.users.id"))
 
     user = relationship("User", back_populates="follows", foreign_keys=[user_id])
     follows_user = relationship(

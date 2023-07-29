@@ -2,12 +2,13 @@ from pydantic import BaseModel
 from typing import Optional
 
 from datetime import datetime
+from uuid import UUID
 
 
 class CommentBase(BaseModel):
-    id: int
-    user_id: int
-    tweet_id: int
+    id: UUID
+    user_id: UUID
+    tweet_id: UUID
     content: str
     created_at: datetime
 
@@ -21,13 +22,13 @@ class Comment(CommentBase):
 
 class CommentCreate(BaseModel):
     content: str
-    tweet_id: Optional[int]
+    tweet_id: Optional[UUID]
 
 
 class CommentDelete(BaseModel):
-    comment_id: int
+    comment_id: UUID
 
 
 class CommentUpdate(BaseModel):
-    comment_id: int
+    comment_id: UUID
     new_content: str

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from typing import List
 
-from dependencies import get_db, send_email_notification, get_current_user
+from dependencies import get_db, send_email_notification, get_current_user, is_valid_uuid
 from schemas import s_users
 from cruds import c_users
 import security
@@ -24,9 +24,7 @@ async def create_user(
     if db_user_username:
         raise HTTPException(status_code=400, detail="Username already registered")
     newUser: s_users.User = c_users.create_user(db=db, user=user)
-    bg_tasks.add_task(
-        send_email_notification, username=newUser.username, email=newUser.email
-    )
+    bg_tasks.add_task(send_email_notification, username=newUser.username, email=newUser.email)
     return newUser
 
 
@@ -69,18 +67,17 @@ async def update_user(
     db: Session = Depends(get_db),
     current_user: s_users.UserPasswordBody = Depends(get_current_user),
 ):
-    if not security.verify_password(
-        request_body.password, current_user.hashed_password
-    ):
+    if not security.verify_password(request_body.password, current_user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
     if request_body.newUsername is not None:
-        db_user_with_username = c_users.get_user_by_username(
-            db, request_body.newUsername
-        )
+        db_user_with_username = c_users.get_user_by_username(db, request_body.newUsername)
 
         if db_user_with_username is not None:
             raise HTTPException(status_code=406, detail="Username already exists")
+
+    if not is_valid_uuid(current_user.id):
+        raise HTTPException(status_code=400, detail="Tweet does not exist")
 
     user = c_users.update_user(db, current_user.id, request_body)
     return user
@@ -92,9 +89,7 @@ async def change_password(
     db: Session = Depends(get_db),
     current_user: s_users.UserPasswordBody = Depends(get_current_user),
 ):
-    if not security.verify_password(
-        request_body.password, current_user.hashed_password
-    ):
+    if not security.verify_password(request_body.password, current_user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect password")
     c_users.change_password(db, current_user.id, request_body)
     response = Response(content="Password changed successfully")
@@ -110,9 +105,7 @@ async def delete_user(
     db: Session = Depends(get_db),
     current_user: s_users.UserPasswordBody = Depends(get_current_user),
 ):
-    if not security.verify_password(
-        request_body.password, current_user.hashed_password
-    ):
+    if not security.verify_password(request_body.password, current_user.hashed_password):
         raise HTTPException(status_code=401, detail="Wrong password")
     c_users.delete_user(db, current_user.id)
     return {"message": "User deleted successfuly"}

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.orm import Session
 
@@ -6,7 +6,9 @@ from typing import List
 
 from schemas import s_comments, s_users, s_counts
 from cruds import c_comments, c_counts
-from dependencies import get_db, get_current_user
+from dependencies import get_db, get_current_user, is_valid_uuid
+
+from uuid import UUID
 
 
 router = APIRouter()
@@ -31,8 +33,10 @@ async def create_comment(
 
 @router.get("/user/{user_id}", response_model=List[s_comments.Comment])
 def get_comments_for_user(
-    user_id: int, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
+    user_id: UUID, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
+    if not is_valid_uuid(user_id):
+        raise HTTPException(status_code=400, detail="User does not exist")
     comments = c_comments.get_comments_for_user(db, user_id, skip, limit)
     return [
         s_comments.Comment(
@@ -49,7 +53,7 @@ def get_comments_for_user(
 
 @router.get("/tweet/{tweet_id}", response_model=List[s_comments.Comment])
 def get_comments_for_tweet(
-    tweet_id: int, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
+    tweet_id: UUID, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
     comments = c_comments.get_comments_for_tweet(db, tweet_id, skip, limit)
     return [
@@ -66,7 +70,7 @@ def get_comments_for_tweet(
 
 
 @router.get("/comment/{comment_id}", response_model=s_comments.Comment)
-def get_comment_by_id(comment_id: int, db: Session = Depends(get_db)):
+def get_comment_by_id(comment_id: UUID, db: Session = Depends(get_db)):
     comment = c_comments.get_comment_by_id(db, comment_id)
     return s_comments.Comment(
         id=comment.id,
@@ -79,7 +83,7 @@ def get_comment_by_id(comment_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/count/tweet/{tweet_id}", response_model=s_counts.CountBase)
-def get_comment_count_for_tweet(tweet_id: int, db: Session = Depends(get_db)):
+def get_comment_count_for_tweet(tweet_id: UUID, db: Session = Depends(get_db)):
     count = c_counts.get_comment_count_for_tweet(db, tweet_id)
     return s_counts.CountBase(count=count)
 
