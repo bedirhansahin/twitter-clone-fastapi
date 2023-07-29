@@ -36,9 +36,7 @@ def decode_token(token: str):
     return jwt.decode(token, "secret_key", algorithms=["HS256"])
 
 
-def authenticate_user(
-    db: Session, email: str, password: str
-) -> Union[bool, s_users.User]:
+def authenticate_user(db: Session, email: str, password: str) -> Union[bool, s_users.User]:
     user = c_users.get_user_by_email_or_username(db, username=email)
     if not user:
         return False
