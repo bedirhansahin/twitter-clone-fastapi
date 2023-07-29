@@ -8,6 +8,8 @@ from schemas import s_users, s_followers, s_counts
 from cruds import c_follows, c_counts, c_users
 from dependencies import get_current_user, get_db
 
+from uuid import UUID
+
 router = APIRouter()
 
 
@@ -22,19 +24,19 @@ async def create_follow_for_user(
 
 
 @router.get("/count/follows/{user_id}", response_model=s_counts.CountBase)
-def get_follows_count_for_user(user_id: int, db: Session = Depends(get_db)):
+def get_follows_count_for_user(user_id: UUID, db: Session = Depends(get_db)):
     count = c_counts.get_following_for_user(db, user_id)
     return s_counts.CountBase(count=count)
 
 
 @router.get("/count/followers/{user_id}", response_model=s_counts.CountBase)
-def get_followers_count_for_user(user_id: int, db: Session = Depends(get_db)):
+def get_followers_count_for_user(user_id: UUID, db: Session = Depends(get_db)):
     count = c_counts.get_followers_for_user(db, user_id)
     return s_counts.CountBase(count=count)
 
 
 @router.get("/follows/{user_id}", response_model=List[s_followers.FollowResponseBody])
-def get_all_follows_for_user(user_id: int, db: Session = Depends(get_db)):
+def get_all_follows_for_user(user_id: UUID, db: Session = Depends(get_db)):
     user = c_users.get_user_by_id(db, user_id)
 
     if not user:
@@ -56,7 +58,7 @@ def get_all_follows_for_user(user_id: int, db: Session = Depends(get_db)):
 @router.get(
     "/followers/{user_id}", response_model=List[s_followers.FollowerResponseBody]
 )
-def get_all_followers_for_user(user_id: int, db: Session = Depends(get_db)):
+def get_all_followers_for_user(user_id: UUID, db: Session = Depends(get_db)):
     user = c_users.get_user_by_id(db, user_id)
 
     if not user:
