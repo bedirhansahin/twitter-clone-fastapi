@@ -31,6 +31,15 @@ class User(Base):
     tweets = relationship("Tweet", back_populates="user")
     comments = relationship("Comments", back_populates="user")
 
+    follows = relationship(
+        "Follows",
+        back_populates="follows_user",
+        foreign_keys="Follows.following_user_id",
+    )
+    followers = relationship(
+        "Follows", back_populates="user", foreign_keys="Follows.user_id"
+    )
+
     def __repr__(self):
         return f"{self.id} | {self.username}"
 
@@ -62,3 +71,17 @@ class Comments(Base):
 
     tweet = relationship("Tweet", back_populates="comments", foreign_keys=[tweet_id])
     user = relationship("User", back_populates="comments", foreign_keys=[user_id])
+
+
+class Follows(Base):
+    __table_args__ = {"schema": "twitter_clone"}
+    __tablename__ = "follows"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("twitter_clone.users.id"))
+    following_user_id = Column(Integer, ForeignKey("twitter_clone.users.id"))
+
+    user = relationship("User", back_populates="follows", foreign_keys=[user_id])
+    follows_user = relationship(
+        "User", back_populates="followers", foreign_keys=[following_user_id]
+    )

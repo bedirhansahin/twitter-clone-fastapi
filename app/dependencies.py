@@ -3,9 +3,8 @@ from fastapi import (
     status,
     HTTPException,
     WebSocket,
-    WebSocketDisconnect,
 )
-from fastapi.security import OAuth2PasswordBearer, OAuth2
+from fastapi.security import OAuth2
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security.utils import get_authorization_scheme_param
 

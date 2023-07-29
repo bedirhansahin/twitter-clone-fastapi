@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from routers import r_users, r_auth, r_tweets, r_comments
+from routers import r_users, r_auth, r_tweets, r_comments, r_follows
 from database import engine, Base
 
 from dotenv import load_dotenv
@@ -45,6 +45,7 @@ def version_0_1_0():
         (r_users.router, "/users", ["users"]),
         (r_tweets.router, "/tweets", ["tweets"]),
         (r_comments.router, "/comments", ["comments"]),
+        (r_follows.router, "/follow", ["follows"]),
     ]
     v_0_1_0.include_router(r_auth.router, tags=["Auth"])
 
