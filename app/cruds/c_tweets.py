@@ -1,6 +1,9 @@
 from fastapi import HTTPException
 
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
+
+from typing import Optional
 
 import models
 from schemas import s_tweets
@@ -85,3 +88,31 @@ def delete_tweet(db: Session, tweet_id: UUID, user_id: UUID):
         db.commit()
     except Exception:
         raise HTTPException(status_code=400, detail="Something went wrong")
+
+
+def search_tweet(db: Session, tweet_word: str):
+    if tweet_word.lower().startswith("from: "):
+        username_and_tweet_content = tweet_word[len("from: ") :].strip().split(" ", 1)
+        username = username_and_tweet_content[0]
+        tweet_content = username_and_tweet_content[1] if len(username_and_tweet_content) > 1 else ""
+
+        user = db.query(models.User).filter(models.User.username == username).one_or_none()
+        if user:
+            if tweet_content:
+                tweet = (
+                    db.query(models.Tweet)
+                    .filter(
+                        models.Tweet.user_id == user.id,
+                        models.Tweet.content.ilike(f"%{tweet_content}%"),
+                    )
+                    .all()
+                )
+            else:
+                tweet = db.query(models.Tweet).filter(models.Tweet.user_id == user.id).all()
+        else:
+            raise HTTPException(status_code=400, detail="User does not found")
+    else:
+        tweet = (
+            db.query(models.Tweet).filter(or_(models.Tweet.content.ilike(f"%{tweet_word}%"))).all()
+        )
+    return tweet

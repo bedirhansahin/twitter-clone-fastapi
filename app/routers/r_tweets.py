@@ -93,3 +93,18 @@ async def delete_tweet(
 ):
     c_tweets.delete_tweet(db, tweet_id, current_user.id)
     return {"message": f"Tweet {tweet_id} deleted successfuly"}
+
+
+@router.get("/search", response_model=List[s_tweets.TweetResponse])
+def search_tweet(tweet_word: str, db: Session = Depends(get_db)):
+    tweets = c_tweets.search_tweet(db, tweet_word)
+    return [
+        s_tweets.TweetResponse(
+            tweetId=tweet.id,
+            userId=tweet.user_id,
+            username=tweet.user.username,
+            content=tweet.content,
+            created_at=tweet.created_at,
+        )
+        for tweet in tweets
+    ]
