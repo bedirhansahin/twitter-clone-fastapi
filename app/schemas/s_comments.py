@@ -10,7 +10,7 @@ class CommentBase(BaseModel):
     user_id: UUID
     tweet_id: UUID
     content: str
-    parent_comment_id: UUID
+    parent_comment_id: Optional[UUID] = None
     created_at: datetime
 
 
