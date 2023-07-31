@@ -10,6 +10,7 @@ class CommentBase(BaseModel):
     user_id: UUID
     tweet_id: UUID
     content: str
+    parent_comment_id: UUID
     created_at: datetime
 
 
@@ -23,6 +24,7 @@ class Comment(CommentBase):
 class CommentCreate(BaseModel):
     content: str
     tweet_id: Optional[UUID]
+    parent_comment_id: Optional[UUID] = None
 
 
 class CommentDelete(BaseModel):

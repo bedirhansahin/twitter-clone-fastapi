@@ -6,7 +6,7 @@ from schemas import s_users
 import security
 import models
 
-from uuid import UUID
+from uuid import UUID, uuid4
 
 
 def get_all_users(db: Session, skip: int = 0, limit: int = 10):
@@ -74,7 +74,15 @@ def get_user_by_email_or_username(db: Session, username: str):
 
 def create_user(db: Session, user: s_users.UserCreate):
     hashed_password = security.get_password_hash(user.password)
-    db_user = models.User(email=user.email, username=user.username, hashed_password=hashed_password)
+    new_id = uuid4()
+    db_user = models.User(
+        email=user.email,
+        username=user.username,
+        hashed_password=hashed_password,
+        bio=user.bio,
+        birthdate=user.birthdate,
+    )
+    db_user.id = new_id
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

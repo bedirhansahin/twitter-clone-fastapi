@@ -2,22 +2,43 @@ from fastapi import HTTPException
 
 from sqlalchemy.orm import Session
 
+from typing import Optional
+
 import models
 from schemas import s_comments, s_tweets
 
-from uuid import UUID
+from uuid import UUID, uuid4
 
 
-def create_comment(db: Session, user_id: UUID, comment: s_comments.CommentCreate):
+def create_comment(
+    db: Session,
+    user_id: UUID,
+    comment: s_comments.CommentCreate,
+    parent_comment_id: Optional[UUID] = None,
+):
     db_tweet: s_tweets.Tweet = (
         db.query(models.Tweet).filter(models.Tweet.id == comment.tweet_id).one_or_none()
     )
     if not db_tweet:
         raise HTTPException(status_code=400, detail="Tweet does not exist")
 
-    db_comment = models.Comments(
-        tweet_id=comment.tweet_id, user_id=user_id, content=comment.content
+    new_id = uuid4()
+
+    db_parent_comment = (
+        db.query(models.Comments).filter(models.Comments.id == parent_comment_id).one_or_none()
     )
+    if parent_comment_id:
+        if not db_parent_comment:
+            raise HTTPException(status_code=400, detail="Parent comment does not exist")
+
+    db_comment = models.Comments(
+        tweet_id=comment.tweet_id,
+        user_id=user_id,
+        content=comment.content,
+        parent_comment_id=comment.parent_comment_id,
+    )
+
+    db_comment.id = new_id
     try:
         db.add(db_comment)
         db.commit()

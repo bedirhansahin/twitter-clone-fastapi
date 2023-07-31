@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import models
 from schemas import s_tweets
 
-from uuid import UUID
+from uuid import UUID, uuid4
 
 
 def get_all_tweets(db: Session, skip: int = 0, limit: int = 10):
@@ -41,8 +41,10 @@ def get_users_tweets(db: Session, user_id: UUID, skip: int = 0, limit: int = 10)
 
 
 def create_tweet(db: Session, tweet: s_tweets.TweetCreate, user_id: UUID):
-    db_tweet = models.Tweet(**tweet.dict())
+    new_id = uuid4()
+    db_tweet = models.Tweet(content=tweet.content)
     db_tweet.user_id = user_id
+    db_tweet.id = new_id
 
     db.add(db_tweet)
     db.commit()

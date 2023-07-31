@@ -28,6 +28,7 @@ async def create_comment(
         username=new_comment.user.username,
         content=new_comment.content,
         created_at=new_comment.created_at,
+        parent_comment_id=new_comment.parent_comment_id,
     )
 
 

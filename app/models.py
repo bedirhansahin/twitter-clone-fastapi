@@ -32,13 +32,13 @@ class User(Base):
 
     tweets = relationship("Tweet", back_populates="user")
     comments = relationship("Comments", back_populates="user")
-
     follows = relationship(
         "Follows",
         back_populates="follows_user",
         foreign_keys="Follows.following_user_id",
     )
     followers = relationship("Follows", back_populates="user", foreign_keys="Follows.user_id")
+    tweet_likes = relationship("TweetLikes", back_populates="user")
 
     def __repr__(self):
         return f"{self.id} | {self.username}"
@@ -55,6 +55,7 @@ class Tweet(Base):
 
     user = relationship("User", back_populates="tweets", foreign_keys=[user_id])
     comments = relationship("Comments", back_populates="tweet", cascade="all, delete-orphan")
+    likes = relationship("TweetLikes", back_populates="tweet")
 
 
 class Comments(Base):
@@ -66,9 +67,15 @@ class Comments(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.users.id"))
     content = Column(String, index=True)
     created_at = Column(DateTime, default=func.now())
+    parent_comment_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.comments.id"))
 
     tweet = relationship("Tweet", back_populates="comments", foreign_keys=[tweet_id])
     user = relationship("User", back_populates="comments", foreign_keys=[user_id])
+    parent_comment = relationship(
+        "Comments",
+        remote_side=[id],
+        backref=backref("child_posts", remote_side=[parent_comment_id]),
+    )
 
 
 class Follows(Base):
@@ -83,3 +90,15 @@ class Follows(Base):
     follows_user = relationship(
         "User", back_populates="followers", foreign_keys=[following_user_id]
     )
+
+
+class TweetLikes(Base):
+    __table_args__ = {"schema": "twitter_clone"}
+    __tablename__ = "tweet_likes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.users.id"))
+    tweet_id = Column(UUID(as_uuid=True), ForeignKey("twitter_clone.tweets.id"))
+
+    user = relationship("User", back_populates="tweet_likes", foreign_keys=[user_id])
+    tweet = relationship("Tweet", back_populates="likes", foreign_keys=[tweet_id])
