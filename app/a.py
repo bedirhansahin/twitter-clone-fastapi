@@ -8,10 +8,7 @@ import os
 
 load_dotenv()
 
-
 DB_URL = str(os.environ.get("DB_URL"))
 
-engine = create_engine(DB_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
+print(DB_URL)
+print("postgresql://postgres:mypassword@db:5432/postgres")

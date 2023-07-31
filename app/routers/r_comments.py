@@ -36,8 +36,8 @@ async def create_comment(
 def get_comments_for_user(
     user_id: UUID, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
-    if not is_valid_uuid(user_id):
-        raise HTTPException(status_code=400, detail="User does not exist")
+    # if not is_valid_uuid(user_id):
+    #     raise HTTPException(status_code=400, detail="User does not exist")
     comments = c_comments.get_comments_for_user(db, user_id, skip, limit)
     return [
         s_comments.Comment(

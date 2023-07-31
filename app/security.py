@@ -16,7 +16,7 @@ load_dotenv()
 
 
 SECRET_KEY = str(os.environ.get("SECRET_KEY"))
-ALGORITHM = str(os.environ.get("SECRET_KEY"))
+ALGORITHM = str(os.environ.get("ALGORITHM"))
 EXPIRE_TIME = os.environ.get("SECRET_KEY")
 
 
@@ -33,7 +33,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def decode_token(token: str):
     """Return a dictionary that represents the decoded JWT."""
-    return jwt.decode(token, "secret_key", algorithms=["HS256"])
+    return jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
 
 def authenticate_user(db: Session, email: str, password: str) -> Union[bool, s_users.User]:
@@ -52,5 +52,5 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     else:
         expire = datetime.utcnow() + timedelta(minutes=30)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, "secret_key", algorithm="HS256")
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
     return encoded_jwt

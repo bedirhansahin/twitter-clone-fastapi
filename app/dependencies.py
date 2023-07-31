@@ -117,6 +117,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 def is_valid_uuid(id_str):
     try:
         uuid_obj = UUID(id_str, version=4)
-        return str(uuid_obj) == id_str
+        return True
     except ValueError:
         return False

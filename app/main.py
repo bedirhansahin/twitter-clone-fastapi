@@ -37,9 +37,11 @@ def version_0_1_0():
         docs_url="/docs",
         redoc_url=None,
         title=TITLE,
+        description="Twitter backend clone made use FastAPI",
         version="0.1.0",
-        contact={"mail": CONTACT},
-        swagger_ui_parameters={"docExpansion": "None"},
+        contact={"email": CONTACT, "name": "Bedirhan Sahin(Developer)"},
+        swagger_ui_parameters={"docExpansion": "None", "syntaxHighlight.theme": "obsidian"},
+        swagger_ui_oauth2_redirect_url="/docs/oauth2-redirect",
     )
     endpoints = [
         (r_users.router, "/users", ["users"]),
