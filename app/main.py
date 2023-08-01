@@ -37,7 +37,7 @@ def version_0_1_0():
         docs_url="/docs",
         redoc_url=None,
         title=TITLE,
-        description="Twitter backend clone made use FastAPI",
+        description="Twitter backend clone (FastAPI)",
         version="0.1.0",
         contact={"email": CONTACT, "name": "Bedirhan Sahin(Developer)"},
         swagger_ui_parameters={"docExpansion": "None", "syntaxHighlight.theme": "obsidian"},
