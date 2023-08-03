@@ -103,7 +103,7 @@ def search_tweet(db: Session, tweet_word: str):
                     db.query(models.Tweet)
                     .filter(
                         models.Tweet.user_id == user.id,
-                        models.Tweet.content.ilike(f"%{tweet_content}%"),
+                        or_(models.Tweet.content.ilike(f"%{tweet_content}%")),
                     )
                     .all()
                 )

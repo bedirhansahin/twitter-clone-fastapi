@@ -28,3 +28,15 @@ def get_count_like_for_tweet(db: Session, tweet_id: UUID):
 def get_count_like_for_user(db: Session, user_id: UUID):
     count = db.query(models.TweetLikes).filter(models.TweetLikes.user_id == user_id).count()
     return count
+
+
+def get_count_comment_like_for_comment(db: Session, comment_id: UUID):
+    count = (
+        db.query(models.CommentLikes).filter(models.CommentLikes.comment_id == comment_id).count()
+    )
+    return count
+
+
+def get_count_comment_like_for_user(db: Session, user_id: UUID):
+    count = db.query(models.CommentLikes).filter(models.CommentLikes.user_id == user_id).count()
+    return count
